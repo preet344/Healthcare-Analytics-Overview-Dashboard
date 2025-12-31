@@ -1,0 +1,68 @@
+📊 1. CORE KPI MEASURES (Cards)
+          1. Total Patients
+          Total Patients = COUNT(PatientMedicalRecords[PatientID])
+          
+          2. Average Length of Stay
+          Avg LOS = AVERAGE(PatientMedicalRecords[LengthOfStay])
+          
+          3. Readmission Rate
+          Readmission Rate % = DIVIDE(COUNTROWS(FILTER(PatientMedicalRecords, PatientMedicalRecords[Readmission] = "Yes")),COUNTROWS(PatientMedicalRecords)) * 100
+          
+          4. Average Treatment Cost 
+          Avg Treatment Cost = AVERAGE(HospitalTreatment[TotalTreatmentCost])
+
+📈 2. DEPARTMENT PERFORMANCE (Bar Charts)
+          1. Patients by Department = CALCULATE(COUNT('Patient Records'[PatientID]), ALLEXCEPT('Treatment Details', 'Treatment Details'[Department]))
+
+          2. Cost Per Patient = DIVIDE(SUM('Treatment Details'[TotalTreatmentCost]), COUNT('Patient Records'[PatientID]))
+
+          3. Dept Performance Score = DIVIDE([Avg Recovery Rating],[Avg LOS Days]) * 100
+          
+          4. Dept Cost Ranking = RANKX(ALL('Treatment Details'[Department]),[Cost Per Patient],DESC)
+
+🏥 3. HOSPITAL ANALYSIS (Maps/Tables)
+          1. Avg Recovery Rating = AVERAGE('Treatment Details'[RecoveryRating])
+          
+          2. Hospital Efficiency Score = DIVIDE([Avg Treatment Cost], [Avg Recovery Rating])
+          
+          3. Hospital Recovery Rank = RANKX(ALL('Treatment Details'[HospitalName]),[Avg Recovery Rating],DESC)
+          
+          4. Top 3 Underperformers = IF([Dept Cost Ranking] <= 3,'Treatment Details'[Department],BLANK())
+
+📅 4. TIME INTELLIGENCE (Line Charts)
+          1. Monthly Admissions = 
+          2. CALCULATE(COUNT('Patient Records'[PatientID]),ALLEXCEPT('Patient Records', 'Patient Records'[AdmissionDate].[Month], 'Patient Records'[AdmissionDate].[Year]))
+          
+          3. YTD Patients = TOTALYTD(COUNT('Patient Records'[PatientID]), 'Patient Records'[AdmissionDate])
+          
+          4. MoM Growth % = 
+          VAR CurrentMonth = [Total Patients] VAR PreviousMonth = CALCULATE([Total Patients], PREVIOUSMONTH('Patient Records'[AdmissionDate])) RETURN IF(
+                  PreviousMonth = 0,
+                  BLANK(),
+                  DIVIDE(CurrentMonth - PreviousMonth, PreviousMonth) * 100)
+
+⚠️ 5. RISK & SAVINGS (Gauge Charts)
+          1. Potential Savings Monthly = [Avg Treatment Cost] * COUNT('Patient Records'[PatientID]) * 0.30
+          
+          2. LOS Target Achievement % = DIVIDE(5, [Avg LOS Days]) * 100  -- Target: 5 days
+          
+          3. Readmission Target % = DIVIDE([Readmission Rate %], 10) * 100  -- Target: 10%
+
+🔮 6. FORECASTING (Trend Lines)
+          1. Forecast LOS Next Month = FORECAST.ETS([Avg LOS Days],'Patient Records'[AdmissionDate],1)
+          
+          2. Predicted Admissions = FORECAST.ETS([Monthly Admissions],'Patient Records'[AdmissionDate],1)
+
+🛠️ IMPLEMENTATION GUIDE
+          **Table 1: Patient Records**
+          PatientID | Age | Gender | AdmissionDate | LengthOfStay | Diagnosis | ReadmissionFlag
+          
+          **Table 2: Treatment Details**  
+          PatientID | HospitalName | Department | TotalTreatmentCost | RecoveryRating
+          
+          **Relationships:** PatientID (1:M)
+          **Date Table:** Mark as Date Table
+
+
+
+
